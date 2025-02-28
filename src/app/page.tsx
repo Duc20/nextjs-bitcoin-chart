@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { getPrice } from "./api/getPrice";
 import BitcoinChart from "./components/BitcoinChart";
+import { ThemeProvider } from "./components/ThemeContext";
 import ThemeToggle from "./components/ThemeToggle";
 import useFetchBitcoin from "./hooks/useFetchBitcoin";
 
@@ -44,29 +45,35 @@ const Home = () => {
     const price1MinAgo = await getPrice("prev");
     setPrevPrice(price1MinAgo);
   };
-  console.log(prevPrice)
+  console.log(prevPrice);
   return (
-    <div className="container">
-      <h1>Bitcoin Chart</h1>
-      <select onChange={(e) => setInterval(e.target.value)} value={interval}>
-        {timeOptions.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
- 
-      <BitcoinChart data={data} />
-      <ThemeToggle />
-      <div>
-        <button onClick={fetchCurrentPrice}>Lấy giá Bitcoin</button>
-        {currentPrice !== null && <span>Giá hiện tại: {currentPrice} USD</span>}
+    <ThemeProvider>
+      <div className="container">
+        <h1>Bitcoin Chart</h1>
+        <select onChange={(e) => setInterval(e.target.value)} value={interval}>
+          {timeOptions.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+
+        <BitcoinChart data={data} />
+        <ThemeToggle />
+        <div>
+          <button onClick={fetchCurrentPrice}>Lấy giá Bitcoin</button>
+          {currentPrice !== null && (
+            <span>Giá hiện tại: {currentPrice} USD</span>
+          )}
+        </div>
+        <div>
+          <button onClick={fetchPrevPrice}>Lấy giá cách đây 1 phút</button>
+          {prevPrice !== null && (
+            <span>Giá cách đây 1 phút: {prevPrice} USD</span>
+          )}
+        </div>
       </div>
-      <div>
-        <button onClick={fetchPrevPrice}>Lấy giá cách đây 1 phút</button>
-        {prevPrice !== null && <span>Giá cách đây 1 phút: {prevPrice} USD</span>}
-      </div>
-    </div>
+    </ThemeProvider>
   );
 };
 

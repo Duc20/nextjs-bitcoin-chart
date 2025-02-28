@@ -1,24 +1,35 @@
 "use client";
 
-import { createChart, CandlestickData } from "lightweight-charts";
+import { CandlestickData, createChart } from "lightweight-charts";
 import { useEffect, useRef } from "react";
+import { useTheme } from "./ThemeContext";
 
 export type BitcoinCandle = CandlestickData & {
   volume: number;
 };
 
 const BitcoinChart = ({ data }: { data: BitcoinCandle[] }) => {
-  const chartRef = useRef<HTMLDivElement>(null);
+  const chartContainerRef = useRef<HTMLDivElement>(null);
+  const chartInstanceRef = useRef<any>(null);
+  const { theme } = useTheme();
 
   useEffect(() => {
-    if (!chartRef.current) return;
+    if (!chartContainerRef.current) return;
 
-    const chart = createChart(chartRef.current, {
-      width: chartRef.current.clientWidth,
+    // Khởi tạo chart với layout ban đầu dựa theo theme
+    const chart = createChart(chartContainerRef.current, {
+      width: chartContainerRef.current.clientWidth,
       height: 500,
-      layout: { background: { color: "white" }, textColor: "black" },
-      grid: { vertLines: { color: "#e1e1e1" }, horzLines: { color: "#e1e1e1" } },
+      layout: {
+        background: { color: theme === "dark" ? "#333" : "white" },
+        textColor: theme === "dark" ? "white" : "black"
+      },
+      grid: {
+        vertLines: { color: "#e1e1e1" },
+        horzLines: { color: "#e1e1e1" }
+      },
     });
+    chartInstanceRef.current = chart;
 
     const candleSeries = chart.addCandlestickSeries();
     const volumeSeries = chart.addHistogramSeries({
@@ -32,9 +43,20 @@ const BitcoinChart = ({ data }: { data: BitcoinCandle[] }) => {
     volumeSeries.setData(data.map((d) => ({ time: d.time, value: d.volume })));
 
     return () => chart.remove();
-  }, [data]);
+  }, [data, theme]); // Nếu data thay đổi, ta có thể khởi tạo lại chart
 
-  return <div ref={chartRef} className="chart-container" />;
+  // Khi theme thay đổi, cập nhật lại layout của chart
+  useEffect(() => {
+    if (!chartInstanceRef.current) return;
+    chartInstanceRef.current.applyOptions({
+      layout: {
+        background: { color: theme === "dark" ? "#333" : "white" },
+        textColor: theme === "dark" ? "white" : "black"
+      }
+    });
+  }, [theme]);
+
+  return <div ref={chartContainerRef} className="chart-container" />;
 };
 
 export default BitcoinChart;

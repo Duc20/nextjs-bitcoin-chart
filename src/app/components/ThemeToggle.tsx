@@ -1,15 +1,17 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useTheme } from "./ThemeContext";
 
 const ThemeToggle = () => {
-  const [theme, setTheme] = useState("light");
+  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
-    document.body.className = theme === "dark" ? "dark-mode" : "";  //cập nhật className của body theo theme được chọn
+    // Cập nhật class của body dựa theo theme
+    document.body.className = theme === "dark" ? "dark-mode" : "";
   }, [theme]);
 
   return (
-    <button onClick={() => setTheme(theme === "light" ? "dark" : "light")}>
+    <button onClick={toggleTheme}>
       {theme === "light" ? "Dark Mode" : "Light Mode"}
     </button>
   );

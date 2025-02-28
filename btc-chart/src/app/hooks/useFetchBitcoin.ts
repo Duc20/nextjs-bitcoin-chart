@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
 import axios from "axios";
+import { useEffect, useState } from "react";
 
 const useFetchBitcoin = (interval: string) => {
   const [data, setData] = useState<any[]>([]);
@@ -8,7 +8,9 @@ const useFetchBitcoin = (interval: string) => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          `https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=${interval}&limit=50`
+          //interval - Chu kỳ thời gian của nến
+          //limit - Số lượng nến trả về
+          `https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=${interval}&limit=200`
         );
         const formattedData = response.data.map((d: any) => ({
           time: d[0] / 1000,
@@ -16,7 +18,7 @@ const useFetchBitcoin = (interval: string) => {
           high: parseFloat(d[2]),
           low: parseFloat(d[3]),
           close: parseFloat(d[4]),
-          volume: parseFloat(d[5]), // Thêm dữ liệu khối lượng
+          volume: parseFloat(d[5]),
 
         }));
         setData(formattedData);
@@ -26,9 +28,9 @@ const useFetchBitcoin = (interval: string) => {
     };
 
     fetchData();
-    const intervalId = setInterval(fetchData, 60000); // Cập nhật mỗi phút
+    const intervalId = setInterval(fetchData, 60000); // Dữ liệu giá BTC đươc cập nhật mỗi phút
 
-    return () => clearInterval(intervalId);
+    return () => clearInterval(intervalId); //Dọn dẹp interval khi interval thay đổi hoặc component bị unmount để tránh memory leak.
   }, [interval]);
 
   return data;

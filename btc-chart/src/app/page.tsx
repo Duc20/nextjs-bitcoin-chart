@@ -1,54 +1,71 @@
-"use client"; // Next.js 13 cần dùng "use client" cho component có trạng thái
+"use client";
 
-import React, { useState } from "react";
-import BitcoinChart from "./components/BitcoinChart";
-import useFetchBitcoin from "./hooks/useFetchBitcoin";
-import ThemeToggle from "./components/ThemeToggle";
+import { useState } from "react";
 import { getPrice } from "./api/getPrice";
+import BitcoinChart from "./components/BitcoinChart";
+import ThemeToggle from "./components/ThemeToggle";
+import useFetchBitcoin from "./hooks/useFetchBitcoin";
+
+//danh sách các tùy chọn chu kỳ thời gian của dữ liệu trong biểu đồ
+const timeOptions = [
+  { value: "1m", label: "1 phút" },
+  { value: "3m", label: "3 phút" },
+  { value: "5m", label: "5 phút" },
+  { value: "10m", label: "10 phút" },
+  { value: "15m", label: "15 phút" },
+  { value: "30m", label: "30 phút" },
+  { value: "45m", label: "45 phút" },
+  { value: "1h", label: "1 giờ" },
+  { value: "2h", label: "2 giờ" },
+  { value: "3h", label: "3 giờ" },
+  { value: "4h", label: "4 giờ" },
+  { value: "6h", label: "6 giờ" },
+  { value: "8h", label: "8 giờ" },
+  { value: "12h", label: "12 giờ" },
+  { value: "1d", label: "1 ngày" },
+  { value: "3d", label: "3 ngày" },
+  { value: "1w", label: "1 tuần" },
+];
 
 const Home = () => {
   const [interval, setInterval] = useState("1m");
   const [currentPrice, setCurrentPrice] = useState<number | null>(null);
   const [prevPrice, setPrevPrice] = useState<number | null>(null);
-  const data = useFetchBitcoin(interval);
+  const data = useFetchBitcoin(interval); //chuẩn bị các dữ liệu từ API của Binance vào "data" để vẽ biểu đồ
 
-  const fetchPrices = async () => {
-    const priceNow = await getPrice();
+  // Lấy giá Bitcoin hiện tại
+  const fetchCurrentPrice = async () => {
+    const priceNow = await getPrice("current");
     setCurrentPrice(priceNow);
-
-    setTimeout(async () => {
-      const price1MinAgo = await getPrice();
-      setPrevPrice(price1MinAgo);
-    }, 60000); // Lấy giá 1 phút trước
   };
 
+  // Lấy giá Bitcoin thời điểm 1 phút trước
+  const fetchPrevPrice = async () => {
+    const price1MinAgo = await getPrice("prev");
+    setPrevPrice(price1MinAgo);
+  };
+  console.log(prevPrice)
   return (
     <div className="container">
       <h1>Bitcoin Chart</h1>
       <select onChange={(e) => setInterval(e.target.value)} value={interval}>
-        <option value="1m">1 phút</option>
-        <option value="3m">3 phút</option>
-        <option value="5m">5 phút</option>
-        <option value="10m">10 phút</option>
-        <option value="15m">15 phút</option>
-        <option value="30m">30 phút</option>
-        <option value="45m">45 phút</option>
-        <option value="1h">1 giờ</option>
-        <option value="2h">2 giờ</option>
-        <option value="3h">3 giờ</option>
-        <option value="4h">4 giờ</option>
-        <option value="6h">6 giờ</option>
-        <option value="8h">8 giờ</option>
-        <option value="12h">12 giờ</option>
-        <option value="1d">1 ngày</option>
-        <option value="3d">3 ngày</option>
-        <option value="1w">1 tuần</option>
+        {timeOptions.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
       </select>
-      <button onClick={fetchPrices}>Lấy giá Bitcoin</button>
-      {currentPrice !== null && <p>Giá hiện tại: {currentPrice} USD</p>}
-      {prevPrice !== null && <p>Giá cách đây 1 phút: {prevPrice} USD</p>}
+ 
       <BitcoinChart data={data} />
       <ThemeToggle />
+      <div>
+        <button onClick={fetchCurrentPrice}>Lấy giá Bitcoin</button>
+        {currentPrice !== null && <span>Giá hiện tại: {currentPrice} USD</span>}
+      </div>
+      <div>
+        <button onClick={fetchPrevPrice}>Lấy giá cách đây 1 phút</button>
+        {prevPrice !== null && <span>Giá cách đây 1 phút: {prevPrice} USD</span>}
+      </div>
     </div>
   );
 };

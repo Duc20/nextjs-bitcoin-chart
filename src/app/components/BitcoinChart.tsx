@@ -10,6 +10,8 @@ export type BitcoinCandle = CandlestickData & {
 
 const BitcoinChart = ({ data }: { data: BitcoinCandle[] }) => {
   const chartContainerRef = useRef<HTMLDivElement>(null);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const chartInstanceRef = useRef<any>(null);
   const { theme } = useTheme();
 
@@ -22,11 +24,11 @@ const BitcoinChart = ({ data }: { data: BitcoinCandle[] }) => {
       height: 500,
       layout: {
         background: { color: theme === "dark" ? "#333" : "white" },
-        textColor: theme === "dark" ? "white" : "black"
+        textColor: theme === "dark" ? "white" : "black",
       },
       grid: {
         vertLines: { color: "#e1e1e1" },
-        horzLines: { color: "#e1e1e1" }
+        horzLines: { color: "#e1e1e1" },
       },
     });
     chartInstanceRef.current = chart;
@@ -51,8 +53,8 @@ const BitcoinChart = ({ data }: { data: BitcoinCandle[] }) => {
     chartInstanceRef.current.applyOptions({
       layout: {
         background: { color: theme === "dark" ? "#333" : "white" },
-        textColor: theme === "dark" ? "white" : "black"
-      }
+        textColor: theme === "dark" ? "white" : "black",
+      },
     });
   }, [theme]);
 
